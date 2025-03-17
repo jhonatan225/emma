@@ -7,7 +7,7 @@ def init_db():
     app = create_app()
     
     # Forzar la URL de PostgreSQL usando pg8000
-    app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://enmma_user:JOjDpxkxI9F97DNPnzBi2APJf34y1SuA@dpg-cvbnbplsvqrc73c9q350-a.oregon-postgres.render.com/enmma"
+    app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql+pg8000://enmma_user:JOjDpxkxI9F97DNPnzBi2APJf34y1SuA@dpg-cvbnbplsvqrc73c9q350-a.oregon-postgres.render.com/enmma"
     
     # Asegurarse de que el directorio instance existe
     instance_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'instance')
