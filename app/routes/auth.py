@@ -114,9 +114,9 @@ def handle_normal_login():
             flash('Usuario o contraseña inválidos')
             return render_template('auth/login.html')
         
-        #if not check_password_hash(user.password_hash, password):
-            #flash('Usuario o contraseña inválidos')
-            #return render_template('auth/login.html')
+        if not check_password_hash(user.password_hash, password):
+            flash('Usuario o contraseña inválidos')
+            return render_template('auth/login.html')
             
         # Iniciar sesión
         session['user_id'] = user.id
