@@ -1,0 +1,384 @@
+{% extends "base.html" %}
+
+{% block title %}Consulta de Servicios{% endblock %}
+
+{% block content %}
+<div class="content-wrapper p-6 mb-6 overflow-y-auto">
+    <form id="serviceForm" class="space-y-6">
+        <!-- Selector de Servicio -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Disney+ -->
+            <div class="border rounded-lg p-4 hover:shadow-md transition-shadow bg-white/80">
+                <div class="flex items-start">
+                    <input type="radio" 
+                           name="serviceType" 
+                           value="disney" 
+                           id="disneyOption"
+                           class="mt-1 mr-2">
+                    <div class="w-full">
+                        <label for="disneyOption" class="text-lg font-semibold text-blue-600 block">Disney+</label>
+                        <!-- Opciones específicas de Disney+ -->
+                        <div class="pl-4 mt-2 space-y-2 disney-options hidden">
+                            {% if not current_user.is_guest %}
+                            <div>
+                                <input type="radio" name="disneyOption" value="loginCode" id="disneyLoginCode" class="mr-2">
+                                <label for="disneyLoginCode">Código de inicio sesión</label>
+                            </div>
+                            {% endif %}
+                            <div>
+                                <input type="radio" name="disneyOption" value="homeCode" id="disneyHomeCodeOpt" class="mr-2">
+                                <label for="disneyHomeCodeOpt">Código Hogar</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Netflix -->
+            <div class="border rounded-lg p-4 hover:shadow-md transition-shadow bg-white/80">
+                <div class="flex items-start">
+                    <input type="radio" 
+                           name="serviceType" 
+                           value="netflix" 
+                           id="netflixOption"
+                           class="mt-1 mr-2">
+                    <div class="w-full">
+                        <label for="netflixOption" class="text-lg font-semibold text-red-600 block">Netflix</label>
+                        <!-- Opciones específicas de Netflix -->
+                        <div class="pl-4 mt-2 space-y-2 netflix-options hidden">
+                            {% if not current_user.is_guest %}
+                            <div>
+                                <input type="radio" name="netflixOption" value="resetLink" id="netflixResetOpt" class="mr-2">
+                                <label for="netflixResetOpt">Link restablecimiento</label>
+                            </div>
+                            {% endif %}
+                            <div>
+                                <input type="radio" name="netflixOption" value="updateHome" id="netflixUpdateOpt" class="mr-2">
+                                <label for="netflixUpdateOpt">Actualizar hogar</label>
+                            </div>
+                            <div>
+                                <input type="radio" name="netflixOption" value="homeCode" id="netflixHomeOpt" class="mr-2">
+                                <label for="netflixHomeOpt">Codigo Estoy De Viaje</label>
+                            </div>
+                            {% if not current_user.is_guest %}
+                            <div>
+                                <input type="radio" name="netflixOption" value="country" id="netflixCountryOpt" class="mr-2">
+                                <label for="netflixCountryOpt">País de la cuenta</label>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Crunchyroll -->
+            <div class="border rounded-lg p-4 hover:shadow-md transition-shadow bg-white/80">
+                <div class="flex items-start">
+                    <input type="radio" 
+                           name="serviceType" 
+                           value="crunchyroll" 
+                           id="crunchyrollOption"
+                           class="mt-1 mr-2">
+                    <div class="w-full">
+                        <label for="crunchyrollOption" class="text-lg font-semibold text-orange-600 block">Crunchyroll</label>
+                        <!-- Opciones específicas de Crunchyroll -->
+                        <div class="pl-4 mt-2 space-y-2 crunchyroll-options hidden">
+                            {% if not current_user.is_guest %}
+                            <div>
+                                <input type="radio" name="crunchyrollOption" value="resetLink" id="crunchyrollResetOpt" class="mr-2">
+                                <label for="crunchyrollResetOpt">Link restablecimiento</label>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Max -->
+            <div class="border rounded-lg p-4 hover:shadow-md transition-shadow bg-white/80">
+                <div class="flex items-start">
+                    <input type="radio" 
+                           name="serviceType" 
+                           value="max" 
+                           id="maxOption"
+                           class="mt-1 mr-2">
+                    <div class="w-full">
+                        <label for="maxOption" class="text-lg font-semibold text-purple-600 block">Max</label>
+                        <!-- Opciones específicas de Max -->
+                        <div class="pl-4 mt-2 space-y-2 max-options hidden">
+                            {% if not current_user.is_guest %}
+                            <div>
+                                <input type="radio" name="maxOption" value="resetLink" id="maxResetOpt" class="mr-2">
+                                <label for="maxResetOpt">Link restablecimiento</label>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Prime Video -->
+        <div class="border rounded-lg p-4 hover:shadow-md transition-shadow bg-white/80">
+            <div class="flex items-start">
+                <input type="radio" 
+                    name="serviceType" 
+                    value="prime" 
+                    id="primeOption"
+                    class="mt-1 mr-2">
+                <div class="w-full">
+                    <label for="primeOption" class="text-lg font-semibold text-green-600 block">Prime Video</label>
+                    <div class="pl-4 mt-2 space-y-2 prime-options hidden">
+                        <div>
+                            <input type="radio" name="primeOption" value="loginCode" id="primeLoginCode" class="mr-2">
+                            <label for="primeLoginCode">Código de inicio sesión</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Campo de Email -->
+        <div class="mt-6">
+            <label class="block text-gray-700 font-bold mb-2">Email a consultar</label>
+            <input type="email" 
+                   id="emailToCheck" 
+                   class="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all bg-white/90"
+                   placeholder="Ingresa el correo electrónico"
+                   required>
+        </div>
+
+        <!-- Spinner de carga -->
+        <div id="loadingSpinner" class="hidden">
+            <div class="flex justify-center items-center">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                <span class="ml-2 text-gray-700">Consultando...</span>
+            </div>
+        </div>
+
+        <!-- Resultados -->
+        <div id="results" class="hidden">
+            <h3 class="font-bold text-lg border-b pb-2 mb-4" id="resultsTitle"></h3>
+            <div class="bg-white/90 rounded-lg p-4">
+                <h4 class="font-semibold text-gray-700" id="resultLabel"></h4>
+                <div class="mt-2 relative">
+                    <p id="resultValue" class="text-lg font-mono bg-white/90 p-2 rounded border break-all pr-10"></p>
+                    <button type="button" 
+                            id="copyButton"
+                            class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z"/>
+                            <path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <button type="submit" 
+                class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-md transition-colors">
+            Consultar Servicio
+        </button>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Estilos para el scroll */
+    .overflow-y-auto {
+        scrollbar-width: thin;
+        scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
+    }
+
+    .overflow-y-auto::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .overflow-y-auto::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .overflow-y-auto::-webkit-scrollbar-thumb {
+        background-color: rgba(156, 163, 175, 0.5);
+        border-radius: 20px;
+        border: transparent;
+    }
+
+    /* Ajustes para pantallas pequeñas */
+    @media (max-height: 800px) {
+        .content-wrapper {
+            min-height: calc(100vh - 8rem);
+            height: auto;
+        }
+    }
+
+    /* Asegurar que el contenido no se oculte detrás del header */
+    .content-wrapper {
+        margin-top: 1rem;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('serviceForm');
+    const results = document.getElementById('results');
+    const disneyOptions = document.querySelector('.disney-options');
+    const netflixOptions = document.querySelector('.netflix-options');
+    const crunchyrollOptions = document.querySelector('.crunchyroll-options');
+    const maxOptions = document.querySelector('.max-options');
+    const primeOptions = document.querySelector('.prime-options');
+    const loadingSpinner = document.getElementById('loadingSpinner');
+    const emailInput = document.getElementById('emailToCheck');
+
+    // Mostrar/ocultar opciones según el servicio seleccionado
+    document.querySelectorAll('input[name="serviceType"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+            disneyOptions.classList.add('hidden');
+            netflixOptions.classList.add('hidden');
+            crunchyrollOptions.classList.add('hidden');
+            maxOptions.classList.add('hidden');
+            primeOptions.classList.add('hidden');  // Agregar esta línea
+            results.classList.add('hidden');
+            
+            if (this.value === 'disney') {
+                disneyOptions.classList.remove('hidden');
+            } else if (this.value === 'netflix') {
+                netflixOptions.classList.remove('hidden');
+            } else if (this.value === 'crunchyroll') {
+                crunchyrollOptions.classList.remove('hidden');
+            } else if (this.value === 'max') {
+                maxOptions.classList.remove('hidden');
+            } else if (this.value === 'prime') {
+                primeOptions.classList.remove('hidden');
+            }
+        });
+    });
+
+    // Configurar botón de copiar
+    const copyButton = document.getElementById('copyButton');
+    copyButton.addEventListener('click', async function() {
+        const resultValue = document.getElementById('resultValue').textContent;
+        try {
+            await navigator.clipboard.writeText(resultValue);
+            
+            // Mostrar tooltip temporal
+            const tooltip = document.createElement('div');
+            tooltip.className = 'absolute right-0 -top-8 bg-gray-800 text-white text-xs px-2 py-1 rounded';
+            tooltip.textContent = '¡Copiado!';
+            this.parentElement.appendChild(tooltip);
+            
+            setTimeout(() => tooltip.remove(), 2000);
+        } catch (err) {
+            console.error('Error al copiar:', err);
+        }
+    });
+
+    // Manejar envío del formulario
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const email = emailInput.value;
+        const service = document.querySelector('input[name="serviceType"]:checked')?.value;
+        let option = null;
+        
+        if (service === 'disney') {
+            option = document.querySelector('input[name="disneyOption"]:checked')?.value;
+        } else if (service === 'netflix') {
+            option = document.querySelector('input[name="netflixOption"]:checked')?.value;
+        } else if (service === 'crunchyroll') {
+            option = document.querySelector('input[name="crunchyrollOption"]:checked')?.value;
+        } else if (service === 'max') {
+            option = document.querySelector('input[name="maxOption"]:checked')?.value;
+        } else if (service === 'prime') {
+        option = document.querySelector('input[name="primeOption"]:checked')?.value;
+        }
+        
+        if (!service || !option) {
+            alert('Por favor selecciona un servicio y una opción específica');
+            return;
+        }
+
+        try {
+            // Mostrar spinner
+            loadingSpinner.classList.remove('hidden');
+            results.classList.add('hidden');
+
+            // Primero verificar acceso al email
+            const verifyResponse = await fetch('/user/verify-email', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email })
+            });
+
+            if (!verifyResponse.ok) {
+                const data = await verifyResponse.json();
+                throw new Error(data.message || 'No tienes acceso a este correo');
+            }
+
+            // Luego buscar el servicio
+            const searchResponse = await fetch('/user/search-service', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email, service, option })
+            });
+
+            const data = await searchResponse.json();
+            
+            if (!searchResponse.ok) {
+                throw new Error(data.message || 'Error al buscar la información');
+            }
+
+            // Mostrar resultados
+            const resultsTitle = document.getElementById('resultsTitle');
+            const resultLabel = document.getElementById('resultLabel');
+            const resultValue = document.getElementById('resultValue');
+
+            // Configurar color del título según el servicio
+            let titleColor = '';
+            switch(service) {
+                case 'disney':
+                    titleColor = 'text-blue-600';
+                    break;
+                case 'netflix':
+                    titleColor = 'text-red-600';
+                    break;
+                case 'crunchyroll':
+                    titleColor = 'text-orange-600';
+                    break;
+                case 'max':
+                    titleColor = 'text-purple-600';
+                    break;
+                case 'prime':
+                    titleColor = 'text-green-600';
+                    break;
+            }
+
+            resultsTitle.className = `font-bold text-lg ${titleColor} border-b pb-2 mb-4`;
+            resultsTitle.textContent = `Resultado ${
+                service === 'disney' ? 'Disney+' : 
+                service === 'netflix' ? 'Netflix' : 
+                service === 'crunchyroll' ? 'Crunchyroll' :
+                service === 'prime' ? 'Prime Video' :
+                'Max'
+            }`;
+            
+            resultLabel.textContent = data.message;
+            resultValue.textContent = data.result;
+            results.classList.remove('hidden');
+
+        } catch (error) {
+            alert(error.message || 'Error al procesar la solicitud');
+        } finally {
+            loadingSpinner.classList.add('hidden');
+        }
+    });
+});
+</script>
+{% endblock %}

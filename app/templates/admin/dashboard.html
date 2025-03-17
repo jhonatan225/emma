@@ -1,0 +1,759 @@
+{% extends "base.html" %}
+
+{% block title %}Panel de Administración{% endblock %}
+
+{% block content %}
+<div class="container mx-auto h-full overflow-y-auto">
+    <div class="grid grid-cols-1 gap-8">
+            <!-- Sección 1: Gestión de Usuarios -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+    <!-- Panel de Crear Usuario -->
+    <div class="content-wrapper p-6 bg-white/90 rounded-lg shadow-lg">
+        <h2 class="text-xl font-bold mb-6 text-gray-800">Crear Usuario</h2>
+        <form method="POST" action="{{ url_for('admin.create_user') }}" id="createUserForm" class="space-y-4">
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2">Usuario:</label>
+                <input type="text" 
+                    name="username" 
+                    class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    required>
+            </div>
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2">Emails (uno por línea):</label>
+                <textarea name="emails[]" 
+                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline h-32"
+                        placeholder="email1@ejemplo.com&#10;email2@ejemplo.com&#10;email3@ejemplo.com"
+                        required></textarea>
+            </div>
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2">Contraseña:</label>
+                <input type="password" 
+                    name="password" 
+                    class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    required>
+            </div>
+            <!-- Checkbox para buscar cualquier cuenta -->
+            <div class="mb-4">
+                <label class="flex items-center text-sm font-medium text-gray-700 cursor-pointer hover:text-gray-900 transition-colors">
+                    <input type="checkbox" 
+                        name="can_search_any" 
+                        class="mr-2 h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded transition-colors">
+                    <span>Permitir buscar cualquier cuenta</span>
+                </label>
+            </div>
+            <button type="submit" 
+                    class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition-colors duration-200">
+                Crear Usuario
+            </button>
+        </form>
+    </div>
+
+                <!-- Panel Lista de Usuarios -->
+                <div class="content-wrapper p-6 bg-white/90 rounded-lg shadow-lg flex flex-col users-container"> <!-- Cambiado h-[400px] por users-container -->
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-xl font-bold text-gray-800">Usuarios Registrados</h2>
+                        <div class="relative">
+                            <input type="text" 
+                                id="userSearchInput" 
+                                class="shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline pl-8"
+                                placeholder="Buscar usuarios...">
+                            <svg class="w-4 h-4 absolute left-2.5 top-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <div class="flex-1 overflow-hidden"> <!-- Contenedor flex con overflow hidden -->
+                        <div class="h-full overflow-y-auto custom-scrollbar"> <!-- Contenedor con scroll -->
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50 sticky top-0 z-10">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Usuario</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Emails</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Key Invitado</th>
+                                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200" id="userTableBody">
+                                {% for user in users %}
+                                <tr class="hover:bg-gray-50 transition-colors duration-200 user-row">
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="text-sm font-medium text-gray-900">{{ user.username }}</div>
+                                            {% if user.is_admin %}
+                                            <span class="ml-2 px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                                                Admin
+                                            </span>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <a href="{{ url_for('admin.manage_user_emails', user_id=user.id) }}" 
+                                           class="inline-flex items-center px-3 py-1 border border-transparent text-sm leading-5 font-medium rounded-md text-white bg-blue-500 hover:bg-blue-600 transition-colors duration-200">
+                                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                                            </svg>
+                                            Gestionar
+                                        </a>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        {% if not user.is_admin %}
+                                        <div class="flex items-center space-x-2">
+                                            <code class="px-2 py-1 rounded bg-gray-100 text-sm font-mono">{{ user.linked_guest_key }}</code>
+                                            <button class="copy-key text-gray-500 hover:text-gray-700 transition-colors duration-200"
+                                                    data-key="{{ user.linked_guest_key }}">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/>
+                                                </svg>
+                                            </button>
+                                        </div>
+                                        {% else %}
+                                        <span class="text-gray-500">N/A</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="px-6 py-4 text-center">
+                                        <div class="flex justify-center space-x-2">
+                                            {% if not (user.is_admin and user.id == current_user.id) %}
+                                            <button onclick="regenerateGuestKey('{{user.id}}')" 
+                                                    class="inline-flex items-center px-2 py-1 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-yellow-500 hover:bg-yellow-600 transition-colors duration-200">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                                                </svg>
+                                            </button>
+                                            <form action="{{ url_for('admin.delete_user', user_id=user.id) }}" 
+                                                  method="POST"
+                                                  class="inline-block"
+                                                  onsubmit="return confirm('¿Estás seguro de eliminar este usuario?');">
+                                                <button type="submit" 
+                                                        class="inline-flex items-center px-2 py-1 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-red-500 hover:bg-red-600 transition-colors duration-200">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                                    </svg>
+                                                </button>
+                                            </form>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sección 2: Configuración IMAP -->
+            <div class="md:grid md:grid-cols-2 gap-8">
+                <div class="content-wrapper p-6 bg-white/90 rounded-lg shadow-lg md:col-span-2">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-bold text-gray-800">Configuración IMAP</h2>
+                    <button onclick="toggleDomainSection()" 
+                            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-500 hover:bg-indigo-600 transition-colors duration-200">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                        </svg>
+                        Gestionar Dominios
+                    </button>
+                </div>
+
+                <div id="domainSection" class="hidden mb-8">
+                    <div class="bg-gray-50 p-6 rounded-lg border border-gray-200">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Dominios Permitidos</h3>
+                        
+                        <!-- Formulario para agregar nuevo dominio -->
+                        <form action="{{ url_for('admin.add_allowed_email') }}" method="POST" class="mb-2">
+                            <div class="flex items-center space-x-2">
+                                <input type="text" 
+                                    name="email_domain" 
+                                    class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                                    placeholder="ejemplo.com"
+                                    required>
+                                <button type="submit" 
+                                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200">
+                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                                    </svg>
+                                    Agregar
+                                </button>
+                            </div>
+                        </form>
+
+                        <!-- Botón Ver Dominios -->
+                        <div class="mt-2">
+                            <button onclick="toggleDomainsModal()" 
+                                    class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded transition-colors duration-200 flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/>
+                                </svg>
+                                Ver Dominios
+                            </button>
+                        </div>
+                        
+                        <!-- Modal de Dominios -->
+                        <div id="domainsModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+                            <div class="relative top-20 mx-auto p-5 border w-full max-w-2xl shadow-lg rounded-md bg-white">
+                                <div class="mt-3">
+                                    <div class="flex justify-between items-center mb-4">
+                                        <h3 class="text-lg leading-6 font-bold text-gray-900">Dominios Permitidos</h3>
+                                        <button onclick="toggleDomainsModal()" class="text-gray-400 hover:text-gray-500">
+                                            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                    <div class="mt-4">
+                                        <div class="overflow-x-auto">
+                                            <table class="min-w-full divide-y divide-gray-200">
+                                                <thead class="bg-gray-50">
+                                                    <tr>
+                                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dominio</th>
+                                                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody class="bg-white divide-y divide-gray-200">
+                                                    {% for domain in allowed_emails %}
+                                                    <tr class="hover:bg-gray-50">
+                                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                            {{ domain.email_domain }}
+                                                        </td>
+                                                        <td class="px-6 py-4 whitespace-nowrap text-right">
+                                                            <form action="{{ url_for('admin.delete_allowed_email', domain_id=domain.id) }}" 
+                                                                method="POST" 
+                                                                class="inline-block"
+                                                                onsubmit="return confirm('¿Estás seguro de eliminar este dominio?');">
+                                                                <button type="submit" 
+                                                                        class="inline-flex items-center px-3 py-1 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-red-500 hover:bg-red-600 transition-colors duration-200">
+                                                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                                                    </svg>
+                                                                    Eliminar
+                                                                </button>
+                                                            </form>
+                                                        </td>
+                                                    </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                <!-- Sección de Dominios (inicialmente oculta) -->
+                <div id="domainSection" class="hidden mb-8">
+                    <div class="bg-gray-50 p-6 rounded-lg border border-gray-200">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Dominios Permitidos</h3>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dominio</th>
+                                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    {% for domain in allowed_emails %}
+                                    <tr class="hover:bg-gray-50 transition-colors duration-200">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                            {{ domain.email_domain }}
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-center">
+                                            <form action="{{ url_for('admin.delete_allowed_email', domain_id=domain.id) }}" 
+                                                  method="POST" 
+                                                  class="inline-block"
+                                                  onsubmit="return confirm('¿Estás seguro de eliminar este dominio?');">
+                                                <button type="submit" 
+                                                        class="inline-flex items-center px-3 py-1 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-red-500 hover:bg-red-600 transition-colors duration-200">
+                                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                                    </svg>
+                                                    Eliminar
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Formulario IMAP -->
+                <form id="imapForm" method="POST" action="{{ url_for('admin.add_imap_config') }}" class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Dominio:</label>
+                            <input type="text" 
+                                   name="domain" 
+                                   id="domainInput"
+                                   class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                                   placeholder="ejemplo.com"
+                                   onchange="handleDomainChange(this.value)"
+                                   required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Email:</label>
+                            <input type="email" 
+                                   name="email" 
+                                   class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                                   placeholder="usuario@ejemplo.com"
+                                   required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Contraseña:</label>
+                            <input type="password" 
+                                   name="password" 
+                                   class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                                   required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Servidor IMAP:</label>
+                            <input type="text" 
+                                   name="imap_server" 
+                                   class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                                   placeholder="imap.ejemplo.com"
+                                   required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Puerto IMAP:</label>
+                            <input type="number" 
+                                   name="imap_port" 
+                                   class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                                   value="993"
+                                   required>
+                        </div>
+                        <div class="flex items-center space-x-4">
+                            <label class="flex items-center text-sm text-gray-700">
+                                <input type="checkbox" 
+                                       name="is_active" 
+                                       class="mr-2 h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                                       checked>
+                                Activo
+                            </label>
+                            <label class="flex items-center text-sm text-gray-700">
+                                <input type="checkbox" 
+                                       name="add_as_allowed_domain" 
+                                       id="addAsAllowedDomain"
+                                       class="mr-2 h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                                       checked>
+                                Agregar como dominio permitido
+                            </label>
+                        </div>
+                    </div>
+                    <div>
+                        <button type="submit" 
+                                class="w-full inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200">
+                            Guardar Configuración
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Tabla de configuraciones IMAP existentes -->
+                <div class="mt-8 overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dominio</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Servidor IMAP</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Puerto</th>
+                                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
+                                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            {% for config in imap_configs %}
+                            <tr class="hover:bg-gray-50 transition-colors duration-200">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                    {{ config.domain }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    {{ config.email }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    {{ config.imap_server }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    {{ config.imap_port }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-center">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                                {{ 'bg-green-100 text-green-800' if config.is_active else 'bg-red-100 text-red-800' }}">
+                                        {{ 'Activo' if config.is_active else 'Inactivo' }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-center">
+                                    <div class="flex justify-center space-x-2">
+                                        <button onclick="testImapConnection('{{ config.id }}')"
+                                                class="inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded text-white bg-yellow-500 hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition-colors duration-200">
+                                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                            </svg>
+                                            Probar
+                                        </button>
+                                        <button onclick="editImapConfig('{{ config.id }}')"
+                                                class="inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded text-white bg-indigo-500 hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200">
+                                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                            </svg>
+                                            Editar
+                                        </button>
+                                        <form action="{{ url_for('admin.delete_imap_config', config_id=config.id) }}"
+                                              method="POST"
+                                              class="inline-block"
+                                              onsubmit="return confirm('¿Estás seguro de eliminar esta configuración?');">
+                                            <button type="submit"
+                                                    class="inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded text-white bg-red-500 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200">
+                                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                                </svg>
+                                                Eliminar
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Edición IMAP -->
+<div id="editModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+    <div class="relative top-20 mx-auto p-5 border w-full max-w-xl shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">Editar Configuración IMAP</h3>
+                <button onclick="closeEditModal()" class="text-gray-400 hover:text-gray-500">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            <form id="editForm" method="POST" class="space-y-4">
+                <input type="hidden" name="config_id" id="editConfigId">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Dominio</label>
+                    <input type="text" 
+                           name="domain" 
+                           id="editDomain" 
+                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Email</label>
+                    <input type="email" 
+                           name="email" 
+                           id="editEmail" 
+                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Nueva Contraseña (dejar en blanco para mantener la actual)</label>
+                    <input type="password" 
+                           name="password" 
+                           id="editPassword" 
+                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Servidor IMAP</label>
+                    <input type="text" 
+                           name="imap_server" 
+                           id="editImapServer" 
+                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Puerto IMAP</label>
+                    <input type="number" 
+                           name="imap_port" 
+                           id="editImapPort" 
+                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                </div>
+                <div class="flex items-center">
+                    <input type="checkbox" 
+                           name="is_active" 
+                           id="editIsActive" 
+                           class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                           <label class="ml-2 block text-sm text-gray-900">Activo</label>
+                       </div>
+                       <div class="mt-5 sm:mt-6 space-x-3">
+                           <button type="button" 
+                                   onclick="closeEditModal()" 
+                                   class="inline-flex justify-center px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-transparent rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+                               Cancelar
+                           </button>
+                           <button type="submit" 
+                                   class="inline-flex justify-center px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                               Guardar Cambios
+                           </button>
+                       </div>
+                   </form>
+               </div>
+           </div>
+       </div>
+       
+       <!-- Toast Notifications - Solo uno centralizado -->
+        <div id="centralToast" class="fixed top-24 left-1/2 transform -translate-x-1/2 transition-all duration-300 ease-in-out translate-y-full opacity-0 z-50">
+            <div class="bg-white rounded-lg border-l-4 shadow-lg p-4 max-w-sm">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0" id="toastIcon">
+                        <!-- El ícono se insertará dinámicamente -->
+                    </div>
+                    <div class="ml-3">
+                        <p id="centralToastMessage" class="text-sm font-medium text-gray-900"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+       
+        <style>
+            .custom-scrollbar {
+                scrollbar-width: thin;
+                scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
+            }
+        
+            .custom-scrollbar::-webkit-scrollbar {
+                width: 6px;
+            }
+        
+            .custom-scrollbar::-webkit-scrollbar-track {
+                background: transparent;
+            }
+        
+            .custom-scrollbar::-webkit-scrollbar-thumb {
+                background-color: rgba(156, 163, 175, 0.5);
+                border-radius: 20px;
+            }
+        
+            .sticky.bg-gray-50 {
+                background-color: rgb(249, 250, 251);
+                border-bottom: 1px solid rgb(229, 231, 235);
+                position: sticky;
+                top: 0;
+                z-index: 10;
+            }
+        
+            /* Altura fija para el contenedor de usuarios */
+            .users-container {
+                height: 550px;  /* Ahora es CSS válido */
+            }
+        
+            /* Asegurar que las filas de la tabla tengan altura consistente */
+            .user-row td {
+                padding-top: 1rem;
+                padding-bottom: 1rem;
+            }
+        </style>
+       
+       <script>
+       function toggleDomainSection() {
+           const section = document.getElementById('domainSection');
+           section.classList.toggle('hidden');
+       }
+       
+       function handleDomainChange(domain) {
+           if (domain) {
+               document.getElementById('addAsAllowedDomain').checked = true;
+           }
+       }
+       
+       function addEmailField() {
+            const emailFields = document.getElementById('emailFields');
+            const newGroup = document.createElement('div');
+           newGroup.className = 'email-input-group flex items-center space-x-2';
+           
+           const newInput = document.createElement('input');
+           newInput.type = 'email';
+           newInput.name = 'emails[]';
+           newInput.className = 'shadow appearance-none border rounded flex-1 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline';
+           newInput.required = true;
+           
+           const removeButton = document.createElement('button');
+           removeButton.type = 'button';
+           removeButton.className = 'bg-red-500 hover:bg-red-600 text-white text-sm font-bold py-2 px-3 rounded transition-colors duration-200';
+           removeButton.innerHTML = '×';
+           removeButton.onclick = function() {
+               newGroup.remove();
+           };
+           
+           newGroup.appendChild(newInput);
+           newGroup.appendChild(removeButton);
+           emailFields.appendChild(newGroup);
+       }
+       
+       function showToast(message, isSuccess = true) {
+            const toast = document.getElementById('centralToast');
+            const toastMessage = document.getElementById('centralToastMessage');
+            const toastIcon = document.getElementById('toastIcon');
+            
+            // Configurar el ícono según el estado
+            const iconColor = isSuccess ? 'text-green-500' : 'text-red-500';
+            const iconSVG = isSuccess 
+                ? `<svg class="h-5 w-5 ${iconColor}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>`
+                : `<svg class="h-5 w-5 ${iconColor}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>`;
+            
+            toastIcon.innerHTML = iconSVG;
+            
+            // Configurar el borde según el estado
+            toast.querySelector('div').classList.remove('border-green-500', 'border-red-500');
+            toast.querySelector('div').classList.add(isSuccess ? 'border-green-500' : 'border-red-500');
+            
+            // Actualizar mensaje
+            toastMessage.textContent = message;
+            
+            // Mostrar toast
+            toast.classList.remove('translate-y-full', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+            
+            // Ocultar después de 3 segundos
+            setTimeout(() => {
+                toast.classList.add('translate-y-full', 'opacity-0');
+                toast.classList.remove('translate-y-0', 'opacity-100');
+            }, 3000);
+        }
+
+        function toggleDomainsModal() {
+            const modal = document.getElementById('domainsModal');
+            modal.classList.toggle('hidden');
+        }
+
+        // Cerrar el modal al hacer clic fuera de él
+        document.addEventListener('DOMContentLoaded', function() {
+            const modal = document.getElementById('domainsModal');
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    toggleDomainsModal();
+                }
+            });
+        });
+       
+    async function testImapConnection(configId) {
+        try {
+            const response = await fetch(`/admin/test-imap/${configId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            });
+            
+            const data = await response.json();
+            showToast(data.message, data.success);
+        } catch (error) {
+            showToast('Error al probar la conexión', false);
+        }
+    }
+       
+       async function editImapConfig(configId) {
+           try {
+               const response = await fetch(`/admin/get-imap-config/${configId}`);
+               const data = await response.json();
+               
+               document.getElementById('editConfigId').value = data.id;
+               document.getElementById('editDomain').value = data.domain;
+               document.getElementById('editEmail').value = data.email;
+               document.getElementById('editImapServer').value = data.imap_server;
+               document.getElementById('editImapPort').value = data.imap_port;
+               document.getElementById('editIsActive').checked = data.is_active;
+               
+               document.getElementById('editForm').action = `/admin/update_imap_config/${data.id}`;
+               document.getElementById('editModal').classList.remove('hidden');
+           } catch (error) {
+               showToast('Error al cargar la configuración', false);
+           }
+       }
+       
+       function closeEditModal() {
+           document.getElementById('editModal').classList.add('hidden');
+       }
+       
+       document.addEventListener('DOMContentLoaded', function() {
+           // Búsqueda de usuarios
+           const userSearchInput = document.getElementById('userSearchInput');
+           if (userSearchInput) {
+               userSearchInput.addEventListener('input', function(e) {
+                   const searchTerm = e.target.value.toLowerCase();
+                   const rows = document.getElementsByClassName('user-row');
+                   
+                   Array.from(rows).forEach(row => {
+                       const username = row.querySelector('td:first-child').textContent.toLowerCase();
+                       row.style.display = username.includes(searchTerm) ? '' : 'none';
+                   });
+               });
+           }
+       
+           // Copiar keys de invitado
+           document.querySelectorAll('.copy-key').forEach(button => {
+               button.addEventListener('click', function() {
+                   const key = this.getAttribute('data-key');
+                   navigator.clipboard.writeText(key).then(() => {
+                       showToast('¡Key copiada!', true);
+                   });
+               });
+           });
+       
+           // Cerrar modal al hacer clic fuera
+           const modal = document.getElementById('editModal');
+           if (modal) {
+               modal.addEventListener('click', function(e) {
+                   if (e.target === this) {
+                       closeEditModal();
+                   }
+               });
+           }
+       });
+       
+       // Función para regenerar key de invitado
+       async function regenerateGuestKey(userId) {
+           if (confirm('¿Estás seguro de regenerar la key de invitado?')) {
+               try {
+                   const response = await fetch(`/admin/regenerate_guest_key/${userId}`, {
+                       method: 'POST',
+                   });
+                   if (response.ok) {
+                       location.reload();
+                   } else {
+                       showToast('Error al regenerar la key', false);
+                   }
+               } catch (error) {
+                   showToast('Error al regenerar la key', false);
+               }
+           }
+       }
+       </script>
+       {% endblock %}
+
+       {% block extra_css %}
+       <style>
+           /* Estilos para el scroll */
+           .overflow-y-auto {
+               scrollbar-width: thin;
+               scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
+           }
+       
+           .overflow-y-auto::-webkit-scrollbar {
+               width: 6px;
+           }
+       
+           .overflow-y-auto::-webkit-scrollbar-track {
+               background: transparent;
+           }
+       
+           .overflow-y-auto::-webkit-scrollbar-thumb {
+               background-color: rgba(156, 163, 175, 0.5);
+               border-radius: 20px;
+               border: transparent;
+           }
+       
+           .container {
+               padding-bottom: 2rem;
+           }
+       </style>
+       {% endblock %}

@@ -1,0 +1,201 @@
+{% extends "base.html" %}
+
+{% block title %}Login{% endblock %}
+
+{% block extra_css %}
+<style>
+    .glass-morphism {
+        background: rgba(255, 255, 255, .1);
+        backdrop-filter: blur(10px);
+        border: 2px solid rgba(255, 255, 255, .2);
+        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+    }
+
+    .background-animate {
+        background-size: 400%;
+        -webkit-animation: AnimationName 10s ease infinite;
+        -moz-animation: AnimationName 10s ease infinite;
+        animation: AnimationName 10s ease infinite;
+    }
+
+    @keyframes AnimationName {
+        0%,100% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+    }
+
+    .custom-background {
+        background-image: url('/static/images/Wallpaper.jpg');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+    }
+
+    /* Nuevos estilos para los botones de tipo de login */
+    .login-type-button {
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .login-type-button.active {
+        background: rgba(255, 255, 255, 0.2);
+        border-color: rgba(255, 255, 255, 0.4);
+    }
+
+    .login-type-button:hover::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(255, 255, 255, 0.1);
+        transition: all 0.3s ease;
+    }
+
+    /* Animación para campos de formulario */
+    .form-transition {
+        transition: all 0.3s ease-in-out;
+        transform-origin: top;
+    }
+
+    .form-transition.hidden {
+        transform: scaleY(0);
+        height: 0;
+        opacity: 0;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen custom-background background-animate relative">
+    <!-- Estrellas -->
+    <div class="absolute inset-0 overflow-hidden pointer-events-none">
+        <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iOCIgY3k9IjgiIHI9IjEiIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4zIi8+PC9zdmc+')] [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black_70%)]"></div>
+    </div>
+
+    <!-- Silueta de montañas -->
+    <div class="absolute bottom-0 left-0 right-0">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320" class="w-full h-auto">
+            <path fill="rgba(0,0,0,0.3)" fill-opacity="1" d="M0,224L48,213.3C96,203,192,181,288,181.3C384,181,480,203,576,202.7C672,203,768,181,864,181.3C960,181,1056,203,1152,202.7C1248,203,1344,181,1392,170.7L1440,160L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
+        </svg>
+    </div>
+
+    <div class="flex items-center justify-center min-h-screen">
+        <div class="glass-morphism rounded-2xl p-8 w-full max-w-md mx-4">
+            <h2 class="text-3xl font-bold mb-8 text-center text-white">Login</h2>
+            
+            <!-- Botones de tipo de login -->
+            <div class="flex justify-center space-x-4 mb-8">
+                <button type="button" 
+                        class="login-type-button active px-6 py-2 rounded-lg text-white border border-white/20"
+                        onclick="switchLoginType('normal')" 
+                        id="normalLoginBtn">
+                    Usuario Normal
+                </button>
+                <button type="button" 
+                        class="login-type-button px-6 py-2 rounded-lg text-white border border-white/20"
+                        onclick="switchLoginType('guest')" 
+                        id="guestLoginBtn">
+                    Invitado
+                </button>
+            </div>
+            
+            <form method="POST" action="{{ url_for('auth.login') }}" class="space-y-6">
+                <input type="hidden" name="login_type" id="loginType" value="normal">
+                
+                <!-- Campos para login normal -->
+                <div id="normalLoginFields" class="form-transition">
+                    <div class="mb-4">
+                        <div class="relative">
+                            <input type="text" 
+                                   name="username" 
+                                   class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-black placeholder-white/60 focus:outline-none focus:border-white/40"
+                                   placeholder="Username">
+                            <span class="absolute right-3 top-3 text-black/60">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                </svg>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <div class="relative">
+                            <input type="password" 
+                                   name="password" 
+                                   class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-black placeholder-white/60 focus:outline-none focus:border-white/40"
+                                   placeholder="Password">
+                            <span class="absolute right-3 top-3 text-black/60">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                </svg>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Campo para login como invitado -->
+                <div id="guestLoginFields" class="form-transition hidden">
+                    <div class="relative">
+                        <input type="text" 
+                               name="guest_key" 
+                               class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-black placeholder-white/60 focus:outline-none focus:border-white/40"
+                               placeholder="Ingresa tu key de invitado">
+                        <span class="absolute right-3 top-3 text-black/60">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                            </svg>
+                        </span>
+                    </div>
+                </div>
+
+                <button type="submit" 
+                        class="w-full py-3 px-4 bg-white/20 hover:bg-white/30 text-white font-semibold rounded-lg transition-all duration-200 ease-in-out transform hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-white/40">
+                    Iniciar Sesión
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function switchLoginType(type) {
+    const normalFields = document.getElementById('normalLoginFields');
+    const guestFields = document.getElementById('guestLoginFields');
+    const loginType = document.getElementById('loginType');
+    const normalBtn = document.getElementById('normalLoginBtn');
+    const guestBtn = document.getElementById('guestLoginBtn');
+    
+    // Actualizar botones
+    if (type === 'normal') {
+        normalBtn.classList.add('active');
+        guestBtn.classList.remove('active');
+        
+        // Mostrar/ocultar campos con animación
+        guestFields.classList.add('hidden');
+        normalFields.classList.remove('hidden');
+    } else {
+        normalBtn.classList.remove('active');
+        guestBtn.classList.add('active');
+        
+        // Mostrar/ocultar campos con animación
+        normalFields.classList.add('hidden');
+        guestFields.classList.remove('hidden');
+    }
+    
+    // Actualizar tipo de login
+    loginType.value = type;
+    
+    // Limpiar campos
+    const form = document.querySelector('form');
+    form.reset();
+}
+
+// Inicializar con login normal
+document.addEventListener('DOMContentLoaded', () => {
+    switchLoginType('normal');
+});
+</script>
+{% endblock %}

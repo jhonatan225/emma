@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}Gestionar Emails - {{ user.username }}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto pt-20">
+    <!-- Recuadro principal -->
+    <div class="content-wrapper p-6 bg-white/90 rounded-lg shadow-lg">
+        <!-- Encabezado -->
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-bold text-gray-800">Gestionar Emails - {{ user.username }}</h1>
+            <a href="{{ url_for('admin.dashboard') }}" 
+               class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded transition-colors duration-200">
+                Volver al Dashboard
+            </a>
+        </div>
+
+    <div class="bg-white p-6 rounded-lg shadow-md">
+        <!-- Lista de emails actuales -->
+        <h2 class="text-xl font-bold mb-4">Emails Actuales</h2>
+        <div class="mb-6">
+            {% for email in user.emails %}
+            <div class="flex items-center justify-between p-2 border-b">
+                <div class="flex items-center space-x-2">
+                    <span>{{ email.email }}</span>
+                    {% if email.is_primary %}
+                    <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">Principal</span>
+                    {% endif %}
+                </div>
+                <div class="flex space-x-2">
+                    {% if not email.is_primary %}
+                    <form method="POST" action="{{ url_for('admin.manage_user_emails', user_id=user.id) }}" class="inline">
+                        <input type="hidden" name="action" value="set_primary">
+                        <input type="hidden" name="email_id" value="{{ email.id }}">
+                        <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-3 rounded text-sm">
+                            Hacer Principal
+                        </button>
+                    </form>
+                    {% endif %}
+                    <form method="POST" action="{{ url_for('admin.manage_user_emails', user_id=user.id) }}" 
+                        class="inline"
+                        onsubmit="return confirm('¿Estás seguro de querer eliminar este email?');">
+                        <input type="hidden" name="action" value="delete">
+                        <input type="hidden" name="email_id" value="{{ email.id }}">
+                        <button type="submit" class="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-3 rounded text-sm">
+                            Eliminar
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Formulario para agregar nuevo email -->
+        <h2 class="text-xl font-bold mb-4">Agregar Nuevo Email</h2>
+        <form method="POST" action="{{ url_for('admin.manage_user_emails', user_id=user.id) }}">
+            <input type="hidden" name="action" value="add">
+            <div class="mb-4">
+                <input type="email" 
+                       name="email" 
+                       class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700"
+                       placeholder="nuevo@email.com"
+                       required>
+            </div>
+            <button type="submit" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+                Agregar Email
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

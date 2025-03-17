@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html class="h-screen">
+<head>
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='images/lvs.ico') }}">
+    <title>{% block title %}Sistema de Login{% endblock %}</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <style>
+        .custom-background {
+            background-image: url('/static/images/Wallpaper.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+    
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+        }
+    
+        .content-wrapper {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+            border-radius: 0.5rem;
+        }
+    
+        .tooltip {
+            visibility: hidden;
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 60;
+            margin-top: 0.5rem;
+            white-space: normal;
+            width: max-content;
+            max-width: 200px;
+        }
+    
+        .has-tooltip:hover .tooltip {
+            visibility: visible;
+        }
+    
+        .transition-all {
+            transition: all 0.3s ease;
+        }
+    
+        .flash-message {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(8px);
+            border-left: 4px solid #FCD34D;
+            margin-bottom: 1rem;
+            animation: slideIn 0.5s ease-out;
+        }
+    
+        @keyframes slideIn {
+            from {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+    
+        html, body {
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+    
+        .main-container {
+            height: 100vh;
+            overflow-y: auto;
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
+        }
+    
+        .main-container::-webkit-scrollbar {
+            width: 6px;
+        }
+    
+        .main-container::-webkit-scrollbar-track {
+            background: transparent;
+        }
+    
+        .main-container::-webkit-scrollbar-thumb {
+            background-color: rgba(156, 163, 175, 0.5);
+            border-radius: 20px;
+            border: transparent;
+        }
+    
+        input, select, textarea {
+            background: rgba(255, 255, 255, 0.8) !important;
+            backdrop-filter: blur(8px) !important;
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+            color: black !important;
+        }
+    
+        input::placeholder {
+            color: rgba(0, 0, 0, 0.5) !important;
+        }
+    
+        .glass-effect, .content-wrapper {
+            color: black;
+        }
+    
+        button {
+            backdrop-filter: blur(8px);
+        }
+    
+        .user-info {
+            cursor: pointer;
+            max-width: 150px;
+        }
+    
+        .user-info:active {
+            transform: scale(0.98);
+        }
+    
+        .truncate {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+    
+        .copy-message {
+            position: absolute;
+            background-color: #000;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            z-index: 70;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            margin-top: 0.25rem;
+        }
+    
+        .copy-message.show {
+            opacity: 1;
+        }
+    
+        .container {
+            position: relative;
+            z-index: 1;
+            padding-bottom: 2rem;
+        }
+    
+        @media (max-width: 640px) {
+            .container {
+                padding-top: 4rem;
+            }
+        }
+    
+        @media (max-height: 800px) {
+            .container {
+                min-height: calc(100vh - 8rem);
+                height: auto;
+            }
+        }
+    
+        .custom-scrollbar {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
+        }
+    
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+    
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+    
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: rgba(156, 163, 175, 0.5);
+            border-radius: 20px;
+        }
+    
+        .sticky.bg-gray-50 {
+            background-color: rgb(249, 250, 251);
+            border-bottom: 1px solid rgb(229, 231, 235);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+    
+        .users-container {
+            height: 550px;
+        }
+    
+        .user-row td {
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+        }
+    
+        /* Estilos específicos para el header del usuario */
+        .compact-header {
+            width: 256px;
+            max-width: 256px;
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            margin: 0;
+            z-index: 50;
+        }
+    
+        /* Asegurar que el contenido dentro del header sea responsivo */
+        .compact-header .flex {
+            max-width: 100%;
+            overflow: hidden;
+        }
+    
+        /* Ajustar el texto para evitar desbordamiento */
+        .compact-header .text-sm {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    
+        /* Estilos para el tooltip */
+        .tooltip-content {
+            max-width: 200px;
+            word-wrap: break-word;
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <div class="custom-background"></div>
+    <div class="main-container overflow-y-auto">
+        {% if current_user.is_authenticated %}
+        <div class="fixed top-4 right-4 z-50">
+            <div class="bg-white/90 rounded-lg shadow-md p-3 w-64">
+                <div class="flex justify-between items-center">
+                    <div class="has-tooltip relative flex-shrink-0">
+                        {% if current_user.is_admin %}
+                        <div class="flex items-center space-x-2 user-info" onclick="copyUserInfo('admin')">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span class="text-sm font-medium text-gray-700 truncate">Admin</span>
+                        </div>
+                        {% elif current_user.is_guest %}
+                        <div class="flex items-center space-x-2 user-info" onclick="copyUserInfo('guest')">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                            </svg>
+                            <span class="text-sm font-medium text-gray-700 truncate">Invitado</span>
+                        </div>
+                        {% else %}
+                        <div class="flex items-center space-x-2 user-info" onclick="copyUserInfo('user')">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-purple-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            </svg>
+                            <span class="text-sm font-medium text-gray-700 truncate">Usuario</span>
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Tooltip con información -->
+                        <div class="tooltip bg-black text-white text-xs rounded py-1 px-2 w-48" id="{{ 'admin-info' if current_user.is_admin else 'guest-info' if current_user.is_guest else 'user-info' }}">
+                            <div class="flex flex-col">
+                                <span class="truncate">Usuario: {{ current_user.username }}</span>
+                                <span class="truncate">Rol: {{ 'Administrador' if current_user.is_admin else 'Invitado' if current_user.is_guest else 'Usuario Regular' }}</span>
+                                {% if current_user.is_admin %}
+                                    <span class="truncate">Email: {{ current_user.emails[0].email if current_user.emails else 'No email' }}</span>
+                                {% elif current_user.is_guest %}
+                                    <span class="truncate">Key: {{ current_user.linked_guest_key }}</span>
+                                {% else %}
+                                    <span class="truncate">Emails: {{ current_user.emails|length }} correo(s)</span>
+                                    <span class="truncate">Key: {{ current_user.linked_guest_key }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <a href="{{ url_for('auth.logout') }}" class="bg-red-500 hover:bg-red-700 text-white text-sm font-bold py-1 px-3 rounded transition-colors flex items-center space-x-1 flex-shrink-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                        </svg>
+                        <span>Salir</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="container mx-auto px-4 flex-grow flex flex-col pt-20">
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="flash-message px-4 py-3 rounded relative" role="alert">
+                            <span class="block sm:inline">{{ message }}</span>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+
+    <script>
+        function copyUserInfo(type) {
+            const infoElement = document.getElementById(`${type}-info`);
+            if (!infoElement) return;
+
+            // Obtener el texto de todos los spans dentro del tooltip
+            const spans = infoElement.querySelectorAll('span');
+            const textToCopy = Array.from(spans).map(span => span.textContent).join('\n');
+
+            // Copiar al portapapeles
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                // Mostrar mensaje de copiado
+                const message = document.createElement('div');
+                message.className = 'copy-message';
+                message.textContent = '¡Copiado!';
+                
+                // Posicionar el mensaje
+                const userInfo = document.querySelector('.user-info');
+                userInfo.appendChild(message);
+                
+                // Mostrar y ocultar el mensaje
+                setTimeout(() => message.classList.add('show'), 100);
+                setTimeout(() => {
+                    message.classList.remove('show');
+                    setTimeout(() => message.remove(), 300);
+                }, 1500);
+            }).catch(err => {
+                console.error('Error al copiar:', err);
+            });
+        }
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
