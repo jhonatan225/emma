@@ -8,7 +8,7 @@ class Config:
     SECRET_KEY = os.getenv('SECRET_KEY', 'Htgs683kdojcu89203')
     
     # Configuración PostgreSQL con parámetros de conexión mejorados
-    SQLALCHEMY_DATABASE_URI = "postgresql+pg8000://lvs_user:4SdeB2n6R9M61dyCzvSH64TEzP17TKzX@dpg-ctli2ojqf0us7388tc60-a.oregon-postgres.render.com/lvs"
+    SQLALCHEMY_DATABASE_URI = "postgresql://enmma_user:JOjDpxkxI9F97DNPnzBi2APJf34y1SuA@dpg-cvbnbplsvqrc73c9q350-a.oregon-postgres.render.com/enmma"
     
     # Agregar estos parámetros
     SQLALCHEMY_ENGINE_OPTIONS = {
