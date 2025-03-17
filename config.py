@@ -5,10 +5,10 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 load_dotenv(os.path.join(basedir, '.env'))
 
 class Config:
-    SECRET_KEY = os.getenv('SECRET_KEY', 'Htgs683kdojcu89203')
+    SECRET_KEY = os.getenv('SECRET_KEY', 'JOjDpxkxI9F97DNPnzBi2APJf34y1SuA')
     
     # Configuración PostgreSQL con parámetros de conexión mejorados
-    SQLALCHEMY_DATABASE_URI = "postgresql://enmma_user:JOjDpxkxI9F97DNPnzBi2APJf34y1SuA@dpg-cvbnbplsvqrc73c9q350-a.oregon-postgres.render.com/enmma"
+    SQLALCHEMY_DATABASE_URI = "postgresql+pg8000://enmma_user:JOjDpxkxI9F97DNPnzBi2APJf34y1SuA@dpg-cvbnbplsvqrc73c9q350-a.oregon-postgres.render.com/enmma"
     
     # Agregar estos parámetros
     SQLALCHEMY_ENGINE_OPTIONS = {
