@@ -1,10 +1,13 @@
+from flask_bcrypt import Bcrypt
 from app import create_app, db
 from app.models.user import User, UserEmail, AllowedEmail
-from werkzeug.security import generate_password_hash
 import os
+
+bcrypt = Bcrypt()  # Inicializar Bcrypt
 
 def init_db():
     app = create_app()
+    bcrypt.init_app(app)  # Inicializar Bcrypt con la app
     
     # Forzar la URL de PostgreSQL usando pg8000
     app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql+pg8000://enmma_user:JOjDpxkxI9F97DNPnzBi2APJf34y1SuA@dpg-cvbnbplsvqrc73c9q350-a.oregon-postgres.render.com/enmma"
@@ -24,10 +27,11 @@ def init_db():
             db.create_all()
             print("Tablas creadas exitosamente")
             
-            # Crear usuario admin
+            # Crear usuario admin con bcrypt
+            hashed_password = bcrypt.generate_password_hash('Triunfador21@').decode('utf-8')
             admin = User(
                 username='admin',
-                password_hash=generate_password_hash('Triunfador21@'),
+                password_hash=hashed_password,
                 is_admin=True,
                 is_guest=False,
                 linked_guest_key=User.generate_guest_key()
@@ -58,3 +62,4 @@ def init_db():
 
 if __name__ == "__main__":
     init_db()
+
