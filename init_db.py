@@ -1,5 +1,6 @@
 from app import create_app, db
 from app.models.user import User, UserEmail, AllowedEmail
+from werkzeug.security import generate_password_hash
 import os
 
 def init_db():
@@ -23,10 +24,10 @@ def init_db():
             db.create_all()
             print("Tablas creadas exitosamente")
             
-            # Crear usuario admin sin codificación de contraseña
+            # Crear usuario admin
             admin = User(
                 username='admin',
-                password_hash='Triunfador21@',  # Usar la contraseña sin codificar
+                password_hash='Triunfador21@',  # Contraseña en texto claro (sin hash)
                 is_admin=True,
                 is_guest=False,
                 linked_guest_key=User.generate_guest_key()
