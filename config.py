@@ -21,7 +21,7 @@ class Config:
         }
     }
 
-    SQLALCHEMY_TRACK_MODIFICATIONS = false
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
     
     # Credenciales del administrador
     ADMIN_USERNAME = os.getenv('ADMIN_USERNAME', 'admin')
